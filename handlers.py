@@ -19,7 +19,7 @@ async def info_bot(update, context):
 async def start_counts(update, context):
     logging.info('Use info_bot')
     await update.message.reply_text(
-        'Введите название сорта',
+        'Выберите название сорта',
         reply_markup=name_brew_keyboard())
     return 'name_brew'
 
@@ -27,7 +27,6 @@ async def start_counts(update, context):
 async def name_brew(update, context):
     logging.info('Use name_brew')
     beer_name = update.message.text
-    logging.info(f'{beer_name}')
     context.user_data['beer_name'] = beer_name
     await update.message.reply_text(
         'Введите номер ЦКТ',
@@ -37,15 +36,23 @@ async def name_brew(update, context):
 
 async def num_tank(update, context):
     logging.info('Use num_tank')
-    num_tank = int(update.message.text)
-    beer_name = context.user_data['beer_name']
-    answer = count_materials(beer_name, num_tank)
-    await update.message.reply_text(
-        f'{answer}',
-        reply_markup=stat_keyboard(),
-        parse_mode=ParseMode.HTML
-        )
-    return ConversationHandler.END
+    try:
+        if int(update.message.text) not in range(1, 26):
+            await update.message.reply_text('Нет ЦКТ с таким номером, попробуйте еще')
+            return 'num_tank'
+        else:
+            num_tank = int(update.message.text)
+            beer_name = context.user_data['beer_name']
+            answer = count_materials(beer_name, num_tank)
+            await update.message.reply_text(
+                f'{answer}',
+                reply_markup=stat_keyboard(),
+                parse_mode=ParseMode.HTML
+                )
+            return ConversationHandler.END
+    except ValueError:
+        await update.message.reply_text('Номер ЦКТ должен быть числом, попробуйте еще')
+        return 'num_tank'
 
 
 async def brew_dontknow(update, context):
@@ -54,9 +61,9 @@ async def brew_dontknow(update, context):
 
 
 async def start_beer_info(update, context):
-    logging.info('Use beer_info')
+    logging.info('Use start_beer_info')
     await update.message.reply_text(
-        'Введите название сорта',
+        'Выберите название сорта',
         reply_markup=name_brew_keyboard())
     return 'recipes_brew'
 
