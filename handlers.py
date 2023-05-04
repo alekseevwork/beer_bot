@@ -1,10 +1,10 @@
 import logging
+from datetime import datetime
 
-from telegram import ReplyKeyboardRemove
 from telegram.constants import ParseMode
 from telegram.ext import ConversationHandler
 
-from utils import stat_keyboard, name_brew_keyboard, report_keyboard
+from utils import stat_keyboard, name_brew_keyboard, report_keyboard, yeats_gen_keyboard
 from recipes import count_materials, get_beer_info
 
 
@@ -29,11 +29,14 @@ async def name_brew(update, context):
     beer_name = update.message.text
     context.user_data['beer_name'] = beer_name
     await update.message.reply_text(
-        'Введите номер ЦКТ',
-        reply_markup=ReplyKeyboardRemove())
-    if context.user_data['blank']:
-        return 'num_tank_protocol'
-    return 'num_tank'
+        'Выберите генерацию дрожжей',
+        reply_markup=yeats_gen_keyboard())
+    try:
+        if context.user_data['blank']:
+            context.user_data['date_brew'] = datetime.now()
+            return 'choice_yeats_gen'
+    except KeyError:
+        return 'num_tank'
 
 
 async def num_tank(update, context):

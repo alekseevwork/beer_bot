@@ -1,16 +1,48 @@
-from datetime import datetime, timedelta
+import datetime
+from datetime import timedelta
+import json
+
 import openpyxl as op
 
-filename = 'blanks.xlsm'
+from recipes import count_brew_for_tanks, beer_params
 
-# -- надо сделать функцию определения даты начала брожения(по номеру цкт)
-start_ferments = datetime.now() + timedelta(days=1)
+filename = 'blanks.xlsx'
+respons_data = ['Протокол', 5, 'Dunkel', datetime.datetime(2023, 5, 4, 17, 55, 11, 291387), [3, '6']]
 
-# -- научить бота собират данные
-fake_data = [
-    '21 (1-8)', 'Kellers', datetime.now().strftime('%d.%m.%y'),
-    '2/21', '7', '4', start_ferments.strftime('%d.%m.%y')
-    ]
+
+def num_tank_and_brews(num):
+    nums_brew = count_brew_for_tanks(int(num))
+    with open("db.json") as f:
+        a = json.load(f)
+    firs_brew = a["counts_brews"]
+    last_brew = firs_brew + nums_brew - 1
+    a["counts_brews"] += nums_brew
+    with open("db.json", "w") as f:
+        json.dump(a, f)
+    return f'{num} ({firs_brew}-{last_brew})'
+
+
+def format_yeats(list):
+    return f'{list[0]}/{list[1]}'
+
+
+def start_ferments(num):
+    hours = num * 8 - 3
+    return hours
+
+
+def prepear(data):
+    numbers = num_tank_and_brews(data[1])
+    beer_name = data[2]
+    date_brew = data[3].strftime('%d.%m.%y')
+    yeats = format_yeats(data[-1])
+    shpunt = beer_params[beer_name]['Плотность закрытия шпунта']
+    cold = beer_params[beer_name]['Плотность начала охлаждения']
+    start = (data[3] + timedelta(hours=start_ferments(data[1]))).strftime('%d.%m.%y')
+    return [numbers, beer_name, date_brew, yeats, shpunt, cold, start]
+
+
+data_ok = prepear(respons_data)
 
 wb = op.load_workbook(filename)
 
@@ -41,6 +73,7 @@ def prepare_data_to_protocol(data, filling_pattern):
     '''Подготовка данных для внесения в протокол'''
     blank_protocol = []
     for index in range(len(filling_pattern)):
+        print(filling_pattern[index] + data[index])
         if '$' in filling_pattern[index]:
             blank_protocol.append(filling_yeats(data[index], filling_pattern[index]))
         else:
@@ -65,13 +98,13 @@ def create_blank_protocol(wb, data):
         fields_to_fill[index].value = ready_data_for_protocol[index]
     # -- заполняем даты брожения
     for day in range(1, 21):
-        date = start_ferments + timedelta(days=day)
+        date = data[2] + timedelta(days=day)         #--------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ws[f'B{11 + day}'] = date.strftime('%d.%m.%y')
 
     # -- продумать проверку перед сохранением файла(отправка в телеграм??)
-    wb.save('blanks.xlsm')
+    wb.save('blanks1.xlsx')
     # -- завернуть в функцию с проверкой
 
 
 if __name__ == '__main__':
-    get_date_start_ferments(fake_data)
+    create_blank_protocol(wb, data_ok)

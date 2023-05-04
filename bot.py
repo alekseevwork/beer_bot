@@ -6,8 +6,9 @@ import settings
 from handlers import (info_bot, num_tank, start_counts, name_brew, brew_dontknow,
                       recipes_brew, start_beer_info, start_reports)
 from reports_blank import start_protocol, choice_yeats_gen, num_tank_protocol, from_tank
-logging.basicConfig(filename='bot.log', level=logging.INFO)
-
+# logging.basicConfig(filename='bot.log', level=logging.INFO)
+logging.basicConfig(filename='bot.log', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+# logger = logging.getLogger(__name__)
 
 def main():
 
@@ -43,8 +44,8 @@ def main():
             MessageHandler(filters.Regex('^(Протокол)$'), start_protocol)
             ],
         states={
-            "name_brew": [MessageHandler(filters.Regex('^(Keller|Dunkel|BroFoot|Kölsch|Wheat)$'), name_brew)],
             "num_tank_protocol": [MessageHandler(filters.TEXT, num_tank_protocol)],
+            "name_brew": [MessageHandler(filters.Regex('^(Keller|Dunkel|BroFoot|Kölsch|Wheat)$'), name_brew)],
             "choice_yeats_gen": [MessageHandler(filters.TEXT, choice_yeats_gen)],
             "from_tank": [MessageHandler(filters.TEXT, from_tank)],
             },
