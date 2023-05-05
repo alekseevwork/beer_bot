@@ -4,7 +4,7 @@ from telegram.ext import Application, filters, CommandHandler, ConversationHandl
 
 import settings
 from handlers import (info_bot, num_tank, start_counts, name_brew, brew_dontknow,
-                      recipes_brew, start_beer_info, start_reports)
+                      recipes_brew, start_beer_info, start_reports, sorry)
 from reports_blank import start_protocol, choice_yeats_gen, num_tank_protocol, from_tank
 # logging.basicConfig(filename='bot.log', level=logging.INFO)
 logging.basicConfig(filename='bot.log', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -54,11 +54,48 @@ def main():
                 filters.TEXT | filters.PHOTO | filters.VIDEO | filters.Document.ALL | filters.LOCATION, brew_dontknow)
             ]
     )
+    bottling_blank = ConversationHandler(
+        entry_points=[
+            MessageHandler(filters.Regex('^(Розлив)$'), sorry)
+        ],
+        states={
+            },
+        fallbacks=[
+            MessageHandler(
+                filters.TEXT | filters.PHOTO | filters.VIDEO | filters.Document.ALL | filters.LOCATION, brew_dontknow)
+            ]
+    )
+    pumping_blank = ConversationHandler(
+        entry_points=[
+            MessageHandler(filters.Regex('^(Перекачка)$'), sorry)
+        ],
+        states={
+            },
+        fallbacks=[
+            MessageHandler(
+                filters.TEXT | filters.PHOTO | filters.VIDEO | filters.Document.ALL | filters.LOCATION, brew_dontknow)
+            ]
+    )
+    filtration_blank = ConversationHandler(
+        entry_points=[
+            MessageHandler(filters.Regex('^(Фильтрация)$'), sorry)
+        ],
+        states={
+            },
+        fallbacks=[
+            MessageHandler(
+                filters.TEXT | filters.PHOTO | filters.VIDEO | filters.Document.ALL | filters.LOCATION, brew_dontknow)
+            ]
+    )
     bot.add_handler(CommandHandler("start", info_bot))
     bot.add_handler(MessageHandler(filters.Regex('^(Отчеты)$'), start_reports))
     bot.add_handler(beer_info)
     bot.add_handler(materials_for_brew)
     bot.add_handler(protocol_blank)
+    bot.add_handler(bottling_blank)
+    bot.add_handler(pumping_blank)
+    bot.add_handler(filtration_blank)
+    bot.add_handler(MessageHandler(filters.TEXT, info_bot))
 
     logging.info('Bot started')
     bot.run_polling()

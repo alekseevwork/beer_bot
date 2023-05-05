@@ -4,6 +4,7 @@ from telegram import ReplyKeyboardRemove
 from telegram.ext import ConversationHandler
 
 from utils import name_brew_keyboard, stat_keyboard, yeats_choice_keyboard
+from protocol import create_blank_protocol
 
 
 async def start_protocol(update, context):
@@ -54,8 +55,11 @@ async def from_tank(update, context):
     logging.info('Use from_tank')
     from_tank = update.message.text
     context.user_data['gen_yeats'].append(from_tank)
-    print([context.user_data[i] for i in context.user_data])
-    await update.message.reply_text(
-        'Готово',
-        reply_markup=stat_keyboard())
+    create_blank_protocol([context.user_data[i] for i in context.user_data])
+    chat_id = update.message.chat_id
+    await context.bot.send_document(
+        chat_id=chat_id,
+        document=open('blanks1.xlsx', 'rb'),   # -- сделать inlain кнопки для добавления отчета в основной файл
+        reply_markup=stat_keyboard()
+    )
     return ConversationHandler.END

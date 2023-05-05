@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 
+from telegram import ReplyKeyboardRemove
 from telegram.constants import ParseMode
 from telegram.ext import ConversationHandler
 
@@ -11,7 +12,7 @@ from recipes import count_materials, get_beer_info
 async def info_bot(update, context):
     logging.info('Use info_bot')
     await update.message.reply_text(
-        'Бот для подсчета сырья на варку',
+        'Чем могу помочь?',
         reply_markup=stat_keyboard()
         )
 
@@ -28,9 +29,15 @@ async def name_brew(update, context):
     logging.info('Use name_brew')
     beer_name = update.message.text
     context.user_data['beer_name'] = beer_name
-    await update.message.reply_text(
-        'Выберите генерацию дрожжей',
-        reply_markup=yeats_gen_keyboard())
+    try:
+        if context.user_data['blank']:
+            await update.message.reply_text(
+                'Выберите генерацию дрожжей',
+                reply_markup=yeats_gen_keyboard())
+    except KeyError:
+        await update.message.reply_text(
+            'Введите номер ЦКТ',
+            reply_markup=ReplyKeyboardRemove())
     try:
         if context.user_data['blank']:
             context.user_data['date_brew'] = datetime.now()
@@ -90,3 +97,11 @@ async def start_reports(update, context):
         'Выбор отчета',
         reply_markup=report_keyboard())
     return 'select_report'
+
+
+async def sorry(update, context):
+    logging.info('Use sorry')
+    await update.message.reply_text(
+        'Пока назодится в разработке',
+        reply_markup=stat_keyboard())
+        
