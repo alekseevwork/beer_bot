@@ -2,6 +2,7 @@ import datetime
 from datetime import timedelta
 import json
 
+from pathlib import Path
 import openpyxl as op
 
 from recipes import count_brew_for_tanks, beer_params
@@ -9,12 +10,13 @@ from recipes import count_brew_for_tanks, beer_params
 
 def num_tank_and_brews(num, count_brew):
     '''Получение данных из файла и привидение к нужному виду'''
-    with open("db.json") as f:
+    filename = Path('db.json')
+    with open(filename) as f:
         a = json.load(f)
     firs_brew = a["counts_brews"]
     last_brew = firs_brew + count_brew - 1
     a["counts_brews"] += count_brew
-    with open("db.json", "w") as f:
+    with open(filename, "w") as f:
         json.dump(a, f)
     return f'{num} ({firs_brew}-{last_brew})'
 
@@ -62,8 +64,7 @@ def prepare_data_to_protocol(data, filling_pattern):
 
 def create_blank_protocol(data):
     '''Создание протокола брожения'''
-
-    filename = 'blanks.xlsx'
+    filename = Path('protocol','blank_protocol.xlsx')
     wb = op.load_workbook(filename)
 
     ws = wb['Протоколы брож']
@@ -88,9 +89,11 @@ def create_blank_protocol(data):
     # -- записываем данные в протокол
     for index in range(len(ready_data_for_protocol)):
         fields_to_fill[index].value = ready_data_for_protocol[index]
+
     # -- заполняем даты брожения
     for day in range(1, 21):
         date = datetime.datetime.strptime(data_ok[-1], '%d.%m.%y') + timedelta(days=day)
         ws[f'B{11 + day}'] = date.strftime('%d.%m.%y')
-
-    wb.save('blanks1.xlsx')
+        
+    save_path = Path('protocol','protocol.xlsx')
+    wb.save(save_path)
