@@ -16,6 +16,12 @@ ingredients = {
     'BroFoot': {
         'Солод': [['Pils Premium', 220], ['Cara Hell', 12.5]],
         'Хмель': [['Perle', 0.5], ['Select', 1]]
+        
+    },
+    'BroFoot_1': {
+        'Солод': [['Pils Premium', 215], ['Cara Hell', 12.5]],
+        'Хмель': [['Perle', 0.5], ['Select', 1]]
+        
     },
     'Kölsch': {
         'Солод': [['Pils', 200], ['Munhen 15', 15], ['Wheat', 25]],
@@ -26,16 +32,7 @@ ingredients = {
         'Хмель': [['Mandarina', 0.5], ['Cascade', 0.7]]
         },
 }
-solod_pack = {
-    'Pils': 40,
-    'Pils Premium': 25,
-    'Pale Ale': 40,
-    'Munhen 25': 40,
-    'Munhen 15': 40,
-    'Wheat': 40,
-    'Cara Hell': 25,
-    'Roasted': 25
-}
+
 beer_params = {
     'Keller': {
         '№ программы затирания': '1',
@@ -85,13 +82,6 @@ beer_params = {
 }
 
 
-def count_bag_solod(solod_name, solod_kg):
-    solod_bag = solod_pack[solod_name]
-    if solod_kg % solod_bag == 0:
-        return solod_kg
-    return ((solod_kg // solod_bag) + 1) * solod_bag
-
-
 def count_brew_for_tanks(number_tank):
     logging.info(f'Use count_brew_for_tanks {number_tank}')
     if number_tank > 19:
@@ -107,6 +97,8 @@ def count_materials(beer_name, number_tank,):
     logging.info(f'Use count_materials {beer_name} {number_tank}')
     if beer_name == 'Dunkel' and number_tank < 4:
         beer_name = 'Dunkel_1-3'
+    elif beer_name == 'BroFoot' and number_tank < 9:
+        beer_name = 'BroFoot_1'
     logging.info(f'{beer_name}')
     nums = count_brew_for_tanks(number_tank)
     return format_result(beer_name, nums=nums, number_tank=number_tank)
@@ -127,11 +119,7 @@ def count_ingridients_for_tank(beer_name, dict, number_tank):
     for type_ingredient in dict:
         answer += f'<b>{type_ingredient}</b>:\n'
         for ingredient in dict[type_ingredient]:
-            if type_ingredient == 'Солод':
-                solod = count_bag_solod(ingredient[0], ingredient[1])
-                answer += f'{ingredient[0]} - {ingredient[1]} / в целых мешках - {solod}\n'
-            else:
-                answer += f'{ingredient[0]} - {ingredient[1]}\n'
+            answer += f'{ingredient[0]} - {ingredient[1]}\n'
     return answer
 
 
@@ -140,6 +128,8 @@ def format_result(beer_name, nums=1, number_tank=None):
     dict_ingridients = create_dict_ingridients(beer_name, nums)
     if beer_name == 'Dunkel_1-3':
         beer_name = 'Dunkel'
+    elif beer_name == 'BroFoot_1':
+        beer_name = 'BroFoot'
     if nums > 1:
         answer = count_ingridients_for_tank(beer_name, dict_ingridients, number_tank)
     else:

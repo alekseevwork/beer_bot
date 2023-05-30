@@ -3,7 +3,7 @@ import logging
 from telegram import ReplyKeyboardRemove
 from telegram.ext import ConversationHandler
 
-from utils import name_brew_keyboard, stat_keyboard, yeats_choice_keyboard
+from keyboards import name_brew_keyboard, stat_keyboard, yeats_choice_keyboard
 from protocol.protocol import create_blank_protocol
 
 

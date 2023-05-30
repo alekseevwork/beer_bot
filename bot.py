@@ -6,9 +6,11 @@ import settings
 from handlers import (info_bot, num_tank, start_counts, name_brew, brew_dontknow,
                       recipes_brew, start_beer_info, start_reports, sorry)
 from reports_blank import start_protocol, choice_yeats_gen, num_tank_protocol, from_tank
-# logging.basicConfig(filename='bot.log', level=logging.INFO)
+from utils import start_timing, time_start_brew, out_answer
+
+
 logging.basicConfig(filename='bot.log', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-# logger = logging.getLogger(__name__)
+
 
 def main():
 
@@ -54,11 +56,13 @@ def main():
                 filters.TEXT | filters.PHOTO | filters.VIDEO | filters.Document.ALL | filters.LOCATION, brew_dontknow)
             ]
     )
-    bottling_blank = ConversationHandler(
+    timing_brew = ConversationHandler(
         entry_points=[
-            MessageHandler(filters.Regex('^(Розлив)$'), sorry)
+            MessageHandler(filters.Regex('^(Время варки)$'), start_timing)
         ],
         states={
+            "time_brew": [MessageHandler(filters.TEXT, time_start_brew)],
+            "nums_brew": [MessageHandler(filters.TEXT, out_answer)]
             },
         fallbacks=[
             MessageHandler(
@@ -92,7 +96,7 @@ def main():
     bot.add_handler(beer_info)
     bot.add_handler(materials_for_brew)
     bot.add_handler(protocol_blank)
-    bot.add_handler(bottling_blank)
+    bot.add_handler(timing_brew)
     bot.add_handler(pumping_blank)
     bot.add_handler(filtration_blank)
     bot.add_handler(MessageHandler(filters.TEXT, info_bot))

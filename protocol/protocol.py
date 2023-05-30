@@ -28,7 +28,7 @@ def format_yeats(list):
 
 def start_ferments(num):
     '''Время до начала брожения'''
-    hours = num * 3
+    hours = (num * 3) + 3
     return hours
 
 

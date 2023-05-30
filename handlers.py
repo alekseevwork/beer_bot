@@ -5,7 +5,7 @@ from telegram import ReplyKeyboardRemove
 from telegram.constants import ParseMode
 from telegram.ext import ConversationHandler
 
-from utils import stat_keyboard, name_brew_keyboard, report_keyboard, yeats_gen_keyboard
+from keyboards import stat_keyboard, name_brew_keyboard, report_keyboard, yeats_gen_keyboard
 from recipes import count_materials, get_beer_info
 
 
